@@ -84,6 +84,9 @@ class YoncuWhatsApp implements NotificationModuleInterface
     {
         return [];
     }
+	function YoncuWhatsApp_logModuleCall($Is,$Req,$Res){
+	    logModuleCall('YoncuWhatsApp',$Is,var_export($Req,true),null,var_export($Res,true),array());
+	}
     public function sendNotification(NotificationInterface $notification, $moduleSettings, $notificationSettings)
     {
   		foreach((array)$notification as $tmp=>$attributes){
@@ -114,9 +117,10 @@ class YoncuWhatsApp implements NotificationModuleInterface
 								'Referer: http://www.yoncu.com/',
 								'Cookie: YoncuKoruma='.$_SERVER['SERVER_ADDR'].';YoncuKorumaRisk=0',
 							));
-							curl_setopt($Curl, CURLOPT_POSTFIELDS, json_encode(["Phone"=>$results['telephoneNumber'],"Message"=>$Mesaj]));
-							curl_exec($Curl);
-							curl_close($Curl);
+							$Post=json_encode(["Phone"=>$results['telephoneNumber'],"Message"=>$Mesaj]);
+							curl_setopt($Curl, CURLOPT_POSTFIELDS,$Post);
+							$Res=curl_exec($Curl);
+    						$this->YoncuWhatsApp_logModuleCall('curl',$Post,$Res);
 		  				}
 		  			}
 		  		}
