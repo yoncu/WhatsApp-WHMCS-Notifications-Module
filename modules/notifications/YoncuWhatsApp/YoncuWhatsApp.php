@@ -89,14 +89,42 @@ class YoncuWhatsApp implements NotificationModuleInterface
 	}
     public function sendNotification(NotificationInterface $notification, $moduleSettings, $notificationSettings)
     {
+		$BildiriTur	= null;
   		foreach((array)$notification as $tmp=>$attributes){
+  			if(is_string($attributes) and stristr('#'.$attributes,'#http')){
+	  			if(stristr($attributes,'supporttickets')){
+					$BildiriTur	= 'Destek';
+	  			}elseif(stristr($attributes,'invoices')){
+					$BildiriTur	= 'Fatura';
+	  			}elseif(stristr($attributes,'clientsservices')){
+					$BildiriTur	= 'Hizmet';
+	  			}
+  			}
 	  		foreach((array)$attributes as $tmp=>$attribute){
 	  			$attribute=(array)$attribute;
 		  		foreach((array)$attribute as $tmp=>$ff){
 		  			if(is_string($ff) and strstr($ff,'?userid=')){
 		  				list($tmp,$UserID)=explode('?userid=',$ff,2);
 		  				$results = localAPI('GetClientsDetails',['clientid'=>$UserID,'stats'=>true]);
-		  				if(isset($results['telephoneNumber']) and strstr($results['telephoneNumber'],'+')){
+		  				$Bildir	= true;
+		  				foreach($results as $un=>$uv){
+		  					if(is_string($uv) and stristr($uv,'whatsapp')){
+		  						if(stristr($uv,'kapalı') or stristr($uv,'kapali')){
+		  							$Bildir	= false;
+		  							break;
+		  						}
+		  						if(empty($BildiriTur)){
+		  							break;
+		  						}
+		  						if(stristr($uv,$BildiriTur)){
+		  							break;
+		  						}else{
+		  							$Bildir	= false;
+		  							break;
+		  						}
+		  					}
+		  				}
+		  				if($Bildir and isset($results['telephoneNumber']) and strstr($results['telephoneNumber'],'+')){
 		  					$results['telephoneNumber']=str_replace('.','',$results['telephoneNumber']);
 		  					$Mesaj=$notificationSettings["WhatsAppMessage"];
 		  					$Mesaj=str_replace('{fullname}',$results['fullname'],$Mesaj);
