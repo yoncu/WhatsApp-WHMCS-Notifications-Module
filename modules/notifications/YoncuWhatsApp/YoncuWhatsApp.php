@@ -1,7 +1,5 @@
 <?php
-
 namespace WHMCS\Module\Notification\YoncuWhatsApp;
-
 use WHMCS\Config\Setting;
 use WHMCS\Exception;
 use WHMCS\Mail\Template;
@@ -11,11 +9,9 @@ use WHMCS\Notification\Contracts\NotificationInterface;
 use WHMCS\Notification\Rule;
 use WHMCS\Utility\Environment\WebHelper;
 
-class YoncuWhatsApp implements NotificationModuleInterface
-{
+class YoncuWhatsApp implements NotificationModuleInterface{
     use DescriptionTrait;
-    public function __construct()
-    {
+    public function __construct(){
   		if(!is_file("modules/notifications/YoncuWhatsApp/logo.png") or filesize("modules/notifications/YoncuWhatsApp/logo.png") < 100){
 			chmod("modules/notifications/YoncuWhatsApp/", 0777);
 			$Curl = curl_init();
@@ -38,8 +34,7 @@ class YoncuWhatsApp implements NotificationModuleInterface
         $this->setDisplayName('YoncuWhatsApp');
 		$this->setLogoFileName('logo.png');
     }
-    public function settings()
-    {
+    public function settings(){
         return [
             'yoncu_service_id' => [
                 'FriendlyName' => 'WhatsApp Servis ID',
@@ -59,16 +54,20 @@ class YoncuWhatsApp implements NotificationModuleInterface
                 'Description' => 'Yöncü Üyeliğinizden Alacağınız API Key',
                 'Placeholder' => '827ccb0eea8a706c4c34a16891f84e7b',
             ],
+            'yoncu_add_gsms' => [
+                'FriendlyName' => 'Add GSM',
+                'Type' => 'text',
+                'Description' => 'Mesaj kopyasının gönderileceği GSM Numaraları',
+                'Placeholder' => '+905554443322,+905332221100',
+            ],
         ];
     }
-    public function testConnection($settings)
-    {
+    public function testConnection($settings){
         if (empty($settings['yoncu_api_id']) || empty($settings['yoncu_api_key'])){
             throw new \Exception('API Bağlantı Hatası.');
         }
     }
-    public function notificationSettings()
-    {
+    public function notificationSettings(){
         return [
             'WhatsAppMessage' => [
                 'FriendlyName' => 'Gönderilecek Mesaj',
@@ -80,8 +79,7 @@ class YoncuWhatsApp implements NotificationModuleInterface
             ],
 		];
     }
-    public function getDynamicField($fieldName, $settings)
-    {
+    public function getDynamicField($fieldName, $settings){
         return [];
     }
 	function YoncuWhatsApp_logModuleCall($Is,$Req,$Res){
@@ -125,30 +123,33 @@ class YoncuWhatsApp implements NotificationModuleInterface
 		  					}
 		  				}
 		  				if($Bildir and isset($results['telephoneNumber']) and strstr($results['telephoneNumber'],'+')){
-		  					$results['telephoneNumber']=str_replace('.','',$results['telephoneNumber']);
-		  					$Mesaj=$notificationSettings["WhatsAppMessage"];
-		  					$Mesaj=str_replace('{fullname}',$results['fullname'],$Mesaj);
-		  					$Mesaj=str_replace('{email}',$results['email'],$Mesaj);
-		  					$Mesaj=str_replace('{userid}',$results['userid'],$Mesaj);
-		  					$Mesaj=str_replace('{phone}',$results['telephoneNumber'],$Mesaj);
-							$Curl = curl_init();
-							curl_setopt($Curl, CURLOPT_URL, "https://www.yoncu.com/API/WhatsApp/".$moduleSettings['yoncu_service_id']."/Send");
-							curl_setopt($Curl, CURLOPT_HEADER, false);
-							curl_setopt($Curl, CURLOPT_ENCODING, false);
-							curl_setopt($Curl, CURLOPT_COOKIESESSION, false);
-							curl_setopt($Curl, CURLOPT_RETURNTRANSFER, true);
-							curl_setopt($Curl, CURLOPT_USERPWD,$moduleSettings['yoncu_api_id'].":".$moduleSettings['yoncu_api_key']);
-							curl_setopt($Curl, CURLOPT_HTTPHEADER, array(
-								'Connection: keep-alive',
-								'Accept: application/json',
-								'User-Agent: '.$_SERVER['SERVER_NAME'],
-								'Referer: http://www.yoncu.com/',
-								'Cookie: YoncuKoruma='.$_SERVER['SERVER_ADDR'].';YoncuKorumaRisk=0',
-							));
-							$Post=json_encode(["Phone"=>$results['telephoneNumber'],"Message"=>$Mesaj]);
-							curl_setopt($Curl, CURLOPT_POSTFIELDS,$Post);
-							$Res=curl_exec($Curl);
-    						$this->YoncuWhatsApp_logModuleCall('curl',$Post,$Res);
+		  					$SendPhones=str_replace('.','',$results['telephoneNumber']).(isset($moduleSettings['yoncu_add_gsms'])?','.$moduleSettings['yoncu_add_gsms']:null);
+		  					foreach(explode(',',$SendPhones) as $SendPhone){
+		  						if(empty($SendPhone)){continue;}
+			  					$Mesaj=$notificationSettings["WhatsAppMessage"];
+			  					$Mesaj=str_replace('{fullname}',$results['fullname'],$Mesaj);
+			  					$Mesaj=str_replace('{email}',$results['email'],$Mesaj);
+			  					$Mesaj=str_replace('{userid}',$results['userid'],$Mesaj);
+			  					$Mesaj=str_replace('{phone}',$SendPhone,$Mesaj);
+								$Curl = curl_init();
+								curl_setopt($Curl, CURLOPT_URL, "https://www.yoncu.com/API/WhatsApp/".$moduleSettings['yoncu_service_id']."/Send");
+								curl_setopt($Curl, CURLOPT_HEADER, false);
+								curl_setopt($Curl, CURLOPT_ENCODING, false);
+								curl_setopt($Curl, CURLOPT_COOKIESESSION, false);
+								curl_setopt($Curl, CURLOPT_RETURNTRANSFER, true);
+								curl_setopt($Curl, CURLOPT_USERPWD,$moduleSettings['yoncu_api_id'].":".$moduleSettings['yoncu_api_key']);
+								curl_setopt($Curl, CURLOPT_HTTPHEADER, array(
+									'Connection: keep-alive',
+									'Accept: application/json',
+									'User-Agent: '.$_SERVER['SERVER_NAME'],
+									'Referer: http://www.yoncu.com/',
+									'Cookie: YoncuKoruma='.$_SERVER['SERVER_ADDR'].';YoncuKorumaRisk=0',
+								));
+								$Post=json_encode(["Phone"=>$SendPhone,"Message"=>$Mesaj]);
+								curl_setopt($Curl, CURLOPT_POSTFIELDS,$Post);
+								$Res=curl_exec($Curl);
+	    						$this->YoncuWhatsApp_logModuleCall('curl',$Post,$Res);
+		  					}
 		  				}
 		  			}
 		  		}
