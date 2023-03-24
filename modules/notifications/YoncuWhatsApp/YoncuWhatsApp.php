@@ -125,27 +125,31 @@ class YoncuWhatsApp implements NotificationModuleInterface{
 		  				if($Bildir and isset($results['telephoneNumber']) and strstr($results['telephoneNumber'],'+')){
 		  					$SendPhones=str_replace('.','',$results['telephoneNumber']).(isset($moduleSettings['yoncu_add_gsms'])?','.$moduleSettings['yoncu_add_gsms']:null);
 		  					foreach(explode(',',$SendPhones) as $SendPhone){
+		  						$SendPhone=trim($SendPhone);
 		  						if(empty($SendPhone)){continue;}
 			  					$Mesaj=$notificationSettings["WhatsAppMessage"];
 			  					$Mesaj=str_replace('{fullname}',$results['fullname'],$Mesaj);
 			  					$Mesaj=str_replace('{email}',$results['email'],$Mesaj);
 			  					$Mesaj=str_replace('{userid}',$results['userid'],$Mesaj);
 			  					$Mesaj=str_replace('{phone}',$SendPhone,$Mesaj);
+								$Post=json_encode(["Phone"=>$SendPhone,"Message"=>$Mesaj]);
 								$Curl = curl_init();
-								curl_setopt($Curl, CURLOPT_URL, "https://www.yoncu.com/API/WhatsApp/".$moduleSettings['yoncu_service_id']."/Send");
 								curl_setopt($Curl, CURLOPT_HEADER, false);
 								curl_setopt($Curl, CURLOPT_ENCODING, false);
 								curl_setopt($Curl, CURLOPT_COOKIESESSION, false);
 								curl_setopt($Curl, CURLOPT_RETURNTRANSFER, true);
-								curl_setopt($Curl, CURLOPT_USERPWD,$moduleSettings['yoncu_api_id'].":".$moduleSettings['yoncu_api_key']);
-								curl_setopt($Curl, CURLOPT_HTTPHEADER, array(
+								curl_setopt($Curl, CURLOPT_USERAGENT,$_SERVER['SERVER_NAME']);
+								if(empty($YoncuSecToken)){
+									curl_setopt($Curl, CURLOPT_URL, "https://www.yoncu.com/YoncuTest/YoncuSec_Token");
+									$YoncuSecToken	= curl_exec($Curl);
+								}
+								curl_setopt($Curl, CURLOPT_HTTPHEADER,[
 									'Connection: keep-alive',
 									'Accept: application/json',
-									'User-Agent: '.$_SERVER['SERVER_NAME'],
-									'Referer: http://www.yoncu.com/',
-									'Cookie: YoncuKoruma='.$_SERVER['SERVER_ADDR'].';YoncuKorumaRisk=0',
-								));
-								$Post=json_encode(["Phone"=>$SendPhone,"Message"=>$Mesaj]);
+									'Cookie: OsSavSec-v1='.$YoncuSecToken,
+								]);
+								curl_setopt($Curl, CURLOPT_USERPWD,$moduleSettings['yoncu_api_id'].":".$moduleSettings['yoncu_api_key']);
+								curl_setopt($Curl, CURLOPT_URL, "https://www.yoncu.com/API/WhatsApp/".$moduleSettings['yoncu_service_id']."/Send?s=".urlencode($SendPhone));
 								curl_setopt($Curl, CURLOPT_POSTFIELDS,$Post);
 								$Res=curl_exec($Curl);
 	    						$this->YoncuWhatsApp_logModuleCall('curl',$Post,$Res);
