@@ -85,7 +85,7 @@ class YoncuWhatsApp implements NotificationModuleInterface{
                 'Placeholder' => '+905554443322,+905332221100',
 			],
 			'WhatsAppDel'	=> [
-                'FriendlyName' => 'Üst "Add GSM" Yok Say',
+                'FriendlyName' => 'Modül Ayarlarındaki Ek GSM Listesini Yok Say',
 	            'Type' => 'yesno',
 			],
 		];
