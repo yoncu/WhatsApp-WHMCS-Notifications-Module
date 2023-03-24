@@ -55,7 +55,7 @@ class YoncuWhatsApp implements NotificationModuleInterface{
                 'Placeholder' => '827ccb0eea8a706c4c34a16891f84e7b',
             ],
             'yoncu_add_gsms' => [
-                'FriendlyName' => 'Add GSM',
+                'FriendlyName' => 'Tüm Kurallar için Ek GSM Ekle',
                 'Type' => 'text',
                 'Description' => 'Mesaj kopyasının gönderileceği GSM Numaraları',
                 'Placeholder' => '+905554443322,+905332221100',
@@ -72,11 +72,22 @@ class YoncuWhatsApp implements NotificationModuleInterface{
             'WhatsAppMessage' => [
                 'FriendlyName' => 'Gönderilecek Mesaj',
 	            'Type' => 'textarea',
-	            'Rows' => '3',
+	            'Rows' => '5',
 	            'Cols' => '120',
             	'Default' => "Sayın {fullname},\nİşleminiz gerçekleştirilmiştir. Bizi tercih ettiğiniz için teşekkür ederiz.",
                 'Placeholder' => 'WhatsApp ile Gönderilecek Mesaj',
             ],
+			'WhatsAppAdd'	=> [
+                'FriendlyName' => 'Kural için Ek GSM Ekle',
+	            'Type' => 'textarea',
+	            'Rows' => '2',
+	            'Cols' => '240',
+                'Placeholder' => '+905554443322,+905332221100',
+			],
+			'WhatsAppDel'	=> [
+                'FriendlyName' => 'Üst "Add GSM" Yok Say',
+	            'Type' => 'yesno',
+			],
 		];
     }
     public function getDynamicField($fieldName, $settings){
@@ -123,7 +134,7 @@ class YoncuWhatsApp implements NotificationModuleInterface{
 		  					}
 		  				}
 		  				if($Bildir and isset($results['telephoneNumber']) and strstr($results['telephoneNumber'],'+')){
-		  					$SendPhones=str_replace('.','',$results['telephoneNumber']).(isset($moduleSettings['yoncu_add_gsms'])?','.$moduleSettings['yoncu_add_gsms']:null);
+		  					$SendPhones=str_replace('.','',$results['telephoneNumber']).(isset($moduleSettings['yoncu_add_gsms'])&&empty($notificationSettings["WhatsAppDel"])?','.$moduleSettings['yoncu_add_gsms']:null).(empty($notificationSettings["WhatsAppAdd"])?null:','.$notificationSettings["WhatsAppAdd"]);
 		  					foreach(explode(',',$SendPhones) as $SendPhone){
 		  						$SendPhone=trim($SendPhone);
 		  						if(empty($SendPhone)){continue;}
