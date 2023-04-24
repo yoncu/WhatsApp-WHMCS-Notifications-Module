@@ -157,7 +157,7 @@ class YoncuWhatsApp implements NotificationModuleInterface{
 								curl_setopt($Curl, CURLOPT_HTTPHEADER,[
 									'Connection: keep-alive',
 									'Accept: application/json',
-									'Cookie: OsSavSec-v1='.$YoncuSecToken,
+									'Cookie: YoncuSec-v1='.$YoncuSecToken,
 								]);
 								curl_setopt($Curl, CURLOPT_USERPWD,$moduleSettings['yoncu_api_id'].":".$moduleSettings['yoncu_api_key']);
 								curl_setopt($Curl, CURLOPT_URL, "https://www.yoncu.com/API/WhatsApp/".$moduleSettings['yoncu_service_id']."/Send?s=".urlencode($SendPhone));
