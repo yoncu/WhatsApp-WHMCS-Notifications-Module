@@ -105,6 +105,9 @@ class YoncuWhatsApp implements NotificationModuleInterface{
 					$BildiriTur	= 'Destek';
 	  			}elseif(stristr($attributes,'invoices')){
 					$BildiriTur	= 'Fatura';
+					if(strstr($attributes,'id=')){
+						list($tmp,$invoiceid)=explode('id=',$attributes,2);
+					}
 	  			}elseif(stristr($attributes,'clientsservices')){
 					$BildiriTur	= 'Hizmet';
 	  			}
@@ -139,10 +142,17 @@ class YoncuWhatsApp implements NotificationModuleInterface{
 		  						$SendPhone=trim($SendPhone);
 		  						if(empty($SendPhone)){continue;}
 			  					$Mesaj=$notificationSettings["WhatsAppMessage"];
-			  					$Mesaj=str_replace('{fullname}',$results['fullname'],$Mesaj);
-			  					$Mesaj=str_replace('{email}',$results['email'],$Mesaj);
-			  					$Mesaj=str_replace('{userid}',$results['userid'],$Mesaj);
-			  					$Mesaj=str_replace('{phone}',$SendPhone,$Mesaj);
+			  					foreach($results as $RN=>$RV){
+			  						if(is_string($RN) and is_string($RV)){
+					  					$Mesaj=str_replace('{'.$RN.'}',$RV,$Mesaj);
+			  						}
+			  					}
+			  					if(isset($invoiceid)){
+					  				$Mesaj=str_replace('{invoiceid}',$invoiceid,$Mesaj);
+			  					}
+			  					if(isset($UserID)){
+					  				$Mesaj=str_replace('{userid}',$UserID,$Mesaj);
+			  					}
 								$Post=json_encode(["Phone"=>$SendPhone,"Message"=>$Mesaj]);
 								$Curl = curl_init();
 								curl_setopt($Curl, CURLOPT_HEADER, false);
@@ -157,7 +167,7 @@ class YoncuWhatsApp implements NotificationModuleInterface{
 								curl_setopt($Curl, CURLOPT_HTTPHEADER,[
 									'Connection: keep-alive',
 									'Accept: application/json',
-									'Cookie: YoncuSec-v1='.$YoncuSecToken,
+									'Cookie: OsSavSec-v1='.$YoncuSecToken,
 								]);
 								curl_setopt($Curl, CURLOPT_USERPWD,$moduleSettings['yoncu_api_id'].":".$moduleSettings['yoncu_api_key']);
 								curl_setopt($Curl, CURLOPT_URL, "https://www.yoncu.com/API/WhatsApp/".$moduleSettings['yoncu_service_id']."/Send?s=".urlencode($SendPhone));
