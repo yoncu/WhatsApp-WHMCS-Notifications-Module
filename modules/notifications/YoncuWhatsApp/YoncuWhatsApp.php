@@ -106,7 +106,8 @@ class YoncuWhatsApp implements NotificationModuleInterface{
 	  			}elseif(stristr($attributes,'invoices')){
 					$BildiriTur	= 'Fatura';
 					if(strstr($attributes,'id=')){
-						list($tmp,$invoiceid)=explode('id=',$attributes,2);
+						list($tmp,$invoice)=explode('id=',$attributes,2);
+		  				$invoice = localAPI('GetInvoice',['invoiceid'=>$invoice]);
 					}
 	  			}elseif(stristr($attributes,'clientsservices')){
 					$BildiriTur	= 'Hizmet';
@@ -147,8 +148,12 @@ class YoncuWhatsApp implements NotificationModuleInterface{
 					  					$Mesaj=str_replace('{'.$RN.'}',$RV,$Mesaj);
 			  						}
 			  					}
-			  					if(isset($invoiceid)){
-					  				$Mesaj=str_replace('{invoiceid}',$invoiceid,$Mesaj);
+			  					if(isset($invoice) and is_array($invoice)){
+				  					foreach($invoice as $RN=>$RV){
+				  						if(is_string($RN) and is_string($RV)){
+						  					$Mesaj=str_replace('{'.$RN.'}',$RV,$Mesaj);
+				  						}
+				  					}
 			  					}
 			  					if(isset($UserID)){
 					  				$Mesaj=str_replace('{userid}',$UserID,$Mesaj);
