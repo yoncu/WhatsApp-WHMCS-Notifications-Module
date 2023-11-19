@@ -172,7 +172,7 @@ class YoncuWhatsApp implements NotificationModuleInterface{
 								]);
 								curl_setopt($Curl, CURLOPT_USERPWD,$moduleSettings['yoncu_api_id'].":".$moduleSettings['yoncu_api_key']);
 								curl_setopt($Curl, CURLOPT_URL, "https://www.yoncu.com/API/WhatsApp/".$moduleSettings['yoncu_service_id']."/Send?Phone=".urlencode($SendPhone));
-								curl_setopt($Curl, CURLOPT_POSTFIELDS,urlencode($Post));
+								curl_setopt($Curl, CURLOPT_POSTFIELDS,$Post);
 								$Res=curl_exec($Curl);
 	    						$this->YoncuWhatsApp_logModuleCall('curl',$Post,$Res);
 		  					}
