@@ -23,7 +23,7 @@ class YoncuWhatsApp implements NotificationModuleInterface{
 			curl_setopt($Curl, CURLOPT_URL, "https://www.yoncu.com/YoncuTest/YoncuSec_Token");
 			$YoncuSecToken	= curl_exec($Curl);
 			curl_setopt($Curl, CURLOPT_URL, "https://www.yoncu.com/resimler/genel/logo.png");
-			curl_setopt($Curl, CURLOPT_HTTPHEADER,['Cookie: YoncuKorumaRisk=0;YoncuSec-v1='.$YoncuSecToken]);
+			curl_setopt($Curl, CURLOPT_HTTPHEADER,['Cookie: YoncuSec-v1='.$YoncuSecToken]);
 			$logo=curl_exec($Curl);
 			curl_close($Curl);
 			file_put_contents("modules/notifications/YoncuWhatsApp/logo.png",$logo);
@@ -168,11 +168,11 @@ class YoncuWhatsApp implements NotificationModuleInterface{
 								}
 								curl_setopt($Curl, CURLOPT_HTTPHEADER,[
 									'Accept: application/json',
-									'Cookie: YoncuKoruma='.$_SERVER['SERVER_ADDR'].';YoncuKorumaRisk=0;YoncuSec-v1='.$YoncuSecToken,
+									'Cookie: YoncuSec-v1='.$YoncuSecToken,
 								]);
 								curl_setopt($Curl, CURLOPT_USERPWD,$moduleSettings['yoncu_api_id'].":".$moduleSettings['yoncu_api_key']);
 								curl_setopt($Curl, CURLOPT_URL, "https://www.yoncu.com/API/WhatsApp/".$moduleSettings['yoncu_service_id']."/Send?Phone=".urlencode($SendPhone));
-								curl_setopt($Curl, CURLOPT_POSTFIELDS,$Post);
+								curl_setopt($Curl, CURLOPT_POSTFIELDS,urlencode($Post));
 								$Res=curl_exec($Curl);
 	    						$this->YoncuWhatsApp_logModuleCall('curl',$Post,$Res);
 		  					}
