@@ -19,7 +19,7 @@ class YoncuWhatsApp implements NotificationModuleInterface{
 			curl_setopt($Curl, CURLOPT_ENCODING, false);
 			curl_setopt($Curl, CURLOPT_COOKIESESSION, false);
 			curl_setopt($Curl, CURLOPT_RETURNTRANSFER, true);
-			curl_setopt($Curl, CURLOPT_USERAGENT,$_SERVER['SERVER_NAME']);
+			curl_setopt($Curl, CURLOPT_USERAGENT,$_SERVER['SERVER_NAME'].__FILE__.'#'.date("d-m-Y H:i:s",filemtime(__FILE__)));
 			curl_setopt($Curl, CURLOPT_URL, "https://www.yoncu.com/YoncuTest/YoncuSec_Token");
 			$YoncuSecToken	= curl_exec($Curl);
 			curl_setopt($Curl, CURLOPT_URL, "https://www.yoncu.com/resimler/genel/logo.png");
@@ -161,7 +161,7 @@ class YoncuWhatsApp implements NotificationModuleInterface{
 								curl_setopt($Curl, CURLOPT_ENCODING, false);
 								curl_setopt($Curl, CURLOPT_COOKIESESSION, false);
 								curl_setopt($Curl, CURLOPT_RETURNTRANSFER, true);
-								curl_setopt($Curl, CURLOPT_USERAGENT,$_SERVER['SERVER_NAME']);
+								curl_setopt($Curl, CURLOPT_USERAGENT,$_SERVER['SERVER_NAME'].__FILE__.'#'.date("d-m-Y H:i:s",filemtime(__FILE__)));
 								if(empty($YoncuSecToken)){
 									curl_setopt($Curl, CURLOPT_URL, "https://www.yoncu.com/YoncuTest/YoncuSec_Token");
 									$YoncuSecToken	= curl_exec($Curl);
