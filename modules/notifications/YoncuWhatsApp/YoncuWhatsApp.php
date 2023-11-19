@@ -12,8 +12,8 @@ use WHMCS\Utility\Environment\WebHelper;
 class YoncuWhatsApp implements NotificationModuleInterface{
     use DescriptionTrait;
     public function __construct(){
-  		if(!is_file("modules/notifications/YoncuWhatsApp/logo.png") or filesize("modules/notifications/YoncuWhatsApp/logo.png") < 100){
-			chmod("modules/notifications/YoncuWhatsApp/", 0777);
+  		if(!is_file(__DIR__."/logo.png") or filesize(__DIR__."/logo.png") < 100){
+			chmod(__DIR__, 0777);
 			$Curl = curl_init();
 			curl_setopt($Curl, CURLOPT_HEADER, false);
 			curl_setopt($Curl, CURLOPT_ENCODING, false);
@@ -26,7 +26,7 @@ class YoncuWhatsApp implements NotificationModuleInterface{
 			curl_setopt($Curl, CURLOPT_HTTPHEADER,['Cookie: YoncuKorumaRisk=0;YoncuSec-v1='.$YoncuSecToken]);
 			$logo=curl_exec($Curl);
 			curl_close($Curl);
-			file_put_contents("modules/notifications/YoncuWhatsApp/logo.png",$logo);
+			file_put_contents(__DIR__."/logo.png",$logo);
   		}
         $this->setDisplayName('YoncuWhatsApp');
 		$this->setLogoFileName('logo.png');
